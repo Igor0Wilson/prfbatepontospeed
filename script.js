@@ -21,14 +21,43 @@ function createQraField(qraValue = "", patenteValue = "") {
   inputQra.type = "text";
   inputQra.placeholder = "Digite o QRA";
   inputQra.value = qraValue;
-  inputQra.className = "input-modern flex-1 qra-input"; // ✅ adicionada classe
+  inputQra.className = "input-modern flex-1 qra-input";
 
-  // Input Patente
-  const inputPatente = document.createElement("input");
-  inputPatente.type = "text";
-  inputPatente.placeholder = "Digite a Patente";
-  inputPatente.value = patenteValue;
-  inputPatente.className = "input-modern flex-1 patente-input"; // ✅ adicionada classe
+  // Combobox Patente
+  const selectPatente = document.createElement("select");
+  selectPatente.className = "input-modern flex-1 patente-input";
+
+  const patentes = [
+    "Diretor PRF",
+    "Vice-Diretor PRF",
+    "Comando Especial PRF",
+    "Coordenador PRF",
+    "Superintendente PRF",
+    "Controlador PRF",
+    "Inspetor PRF",
+    "Agente Especial PRF",
+    "Agente 1ª Classe PRF",
+    "Agente 2ª Classe PRF",
+    "Agente 3ª Classe PRF",
+    "Aluno PRF",
+  ];
+
+  // placeholder padrão
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "Selecione a Patente";
+  defaultOption.disabled = true;
+  defaultOption.selected = true;
+  selectPatente.appendChild(defaultOption);
+
+  // preencher combobox
+  patentes.forEach((p) => {
+    const opt = document.createElement("option");
+    opt.value = p;
+    opt.textContent = p;
+    if (p === patenteValue) opt.selected = true; // caso esteja editando
+    selectPatente.appendChild(opt);
+  });
 
   // Botão remover
   const removeBtn = document.createElement("button");
@@ -39,7 +68,7 @@ function createQraField(qraValue = "", patenteValue = "") {
   removeBtn.onclick = () => wrapper.remove();
 
   wrapper.appendChild(inputQra);
-  wrapper.appendChild(inputPatente);
+  wrapper.appendChild(selectPatente);
   wrapper.appendChild(removeBtn);
 
   qraContainer.appendChild(wrapper);
@@ -308,49 +337,148 @@ btnGeneratePrisao.addEventListener("click", () => {
   }
 });
 
-// =====================
-// Imprimir relatório da direita (#reportPrisao)
-// =====================
 const btnPrintPrisao = document.getElementById("btnPrintPrisao");
 if (btnPrintPrisao) {
-  btnPrintPrisao.addEventListener("click", () => {
+  btnPrintPrisao.addEventListener("click", async () => {
     const panel = document.getElementById("reportPrisao");
     if (!panel) {
       alert("⚠️ Relatório da direita não encontrado.");
       return;
     }
 
-    const styleId = "temp-print-style-prisao";
-    if (document.getElementById(styleId)) {
-      document.getElementById(styleId).remove();
+    // 🔹 Coleta dados
+    const qraBlocks = [...document.querySelectorAll("#outQra div")];
+    const nomePreso =
+      document.getElementById("outNomePreso")?.textContent || "";
+    const rg = document.getElementById("outRgPreso")?.textContent || "";
+    const data = document.getElementById("outDataPrisao")?.textContent || "";
+
+    if (qraBlocks.length === 0) {
+      alert("⚠️ Nenhum QRA informado.");
+      return;
     }
 
-    const style = document.createElement("style");
-    style.id = styleId;
-    style.innerHTML = `
-      @media print {
-        body * { visibility: hidden !important; }
-        #${panel.id}, #${panel.id} * { visibility: visible !important; }
-        #${panel.id} {
-          position: absolute !important;
-          left: 0; top: 0;
-          width: 100%;
-          background: white;
-        }
+    const rows = qraBlocks.map((block) => {
+      const texto = block.textContent.replace("👮", "").trim();
+      const [qra, patente] = texto.split("—").map((s) => s.trim());
+      return { qra, patente, nomePreso, rg, data };
+    });
+
+    // 🔹 Enviar para API
+    try {
+      const response = await fetch("http://localhost:3000/prison", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(rows),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        alert(
+          "⚠️ Erro ao salvar na planilha: " + (result.error || "desconhecido")
+        );
+        return;
       }
-    `;
-    document.head.appendChild(style);
-
-    function cleanup() {
-      const st = document.getElementById(styleId);
-      if (st) st.remove();
-      window.removeEventListener("afterprint", cleanup);
+      console.log("✅ Prisões salvas com sucesso!", result);
+    } catch (err) {
+      console.error("Erro ao enviar prisão:", err);
+      alert("⚠️ Falha ao comunicar com API.");
+      return;
     }
 
-    window.addEventListener("afterprint", cleanup);
+    const btnPrintPrisao = document.getElementById("btnPrintPrisao");
+    if (btnPrintPrisao) {
+      btnPrintPrisao.addEventListener("click", async () => {
+        const panel = document.getElementById("reportPrisao");
+        if (!panel) {
+          alert("⚠️ Relatório da direita não encontrado.");
+          return;
+        }
 
-    window.print();
+        const opt = {
+          margin: 0, // sem margem externa
+          filename: `relatorio_prisao_${Date.now()}.pdf`,
+          image: { type: "jpeg", quality: 1 },
+          html2canvas: { scale: 3, useCORS: true, scrollX: 0, scrollY: 0 },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        };
 
-    setTimeout(cleanup, 1500);
+        try {
+          // 🔹 wrapper temporário do tamanho A4
+          const wrapper = document.createElement("div");
+          wrapper.style.width = "210mm";
+          wrapper.style.height = "297mm"; // altura fixa A4
+          wrapper.style.margin = "0";
+          wrapper.style.padding = "15mm"; // 🔹 padding interno para dar respiro
+          wrapper.style.background = "white";
+          wrapper.style.boxSizing = "border-box"; // padding conta dentro do A4
+          wrapper.style.overflow = "hidden";
+
+          // clona o conteúdo
+          const clone = panel.cloneNode(true);
+          clone.style.width = "100%"; // ocupa toda a largura útil
+          clone.style.height = "auto";
+          wrapper.appendChild(clone);
+
+          document.body.appendChild(wrapper);
+
+          // gera o pdf
+          await html2pdf().set(opt).from(wrapper).save();
+
+          // remove o wrapper temporário
+          document.body.removeChild(wrapper);
+        } catch (err) {
+          console.error("❌ Erro ao gerar PDF:", err);
+          alert("⚠️ Falha ao gerar PDF.");
+        }
+      });
+    }
   });
 }
+
+// Modal
+const imageModal = document.getElementById("imageModal");
+const modalImg = document.getElementById("modalImg");
+const closeModal = document.getElementById("closeModal");
+
+// Função abrir modal
+function openModal(src) {
+  modalImg.src = src;
+  imageModal.classList.remove("hidden");
+}
+
+// Fechar
+closeModal.addEventListener("click", () => {
+  imageModal.classList.add("hidden");
+});
+imageModal.addEventListener("click", (e) => {
+  if (e.target === imageModal) {
+    imageModal.classList.add("hidden");
+  }
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") imageModal.classList.add("hidden");
+});
+
+// Imagens de exemplo
+document.getElementById("exampleImg1").addEventListener("click", (e) => {
+  openModal(e.target.src);
+});
+document.getElementById("exampleImg2").addEventListener("click", (e) => {
+  openModal(e.target.src);
+});
+
+// Preview dos uploads
+function setupPreview(inputId) {
+  const input = document.getElementById(inputId);
+  input.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => openModal(ev.target.result); // abre direto no modal
+      reader.readAsDataURL(file);
+    }
+  });
+}
+setupPreview("fotoPreso1");
+setupPreview("fotoPreso2");

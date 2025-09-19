@@ -56,14 +56,17 @@ body {
   body * {
     visibility: hidden;
   }
-  #reportPanel,
-  #reportPanel * {
+  #reportPrisao,
+  #reportPrisao * {
     visibility: visible;
   }
-  #reportPanel {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
+  #reportPrisao {
+    width: 210mm;
+    min-height: 297mm;
+    box-sizing: border-box;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
   }
 }
