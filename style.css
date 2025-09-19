@@ -1,0 +1,69 @@
+/* fontes (opcional) */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap");
+
+body {
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial;
+}
+
+/* Inputs modernos */
+.input-modern {
+  background: #ffffff;
+  border: 1px solid #e6e6e6;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgba(2, 6, 23, 0.03);
+  outline: none;
+  transition: box-shadow 150ms ease, transform 80ms ease;
+}
+.input-modern:focus {
+  box-shadow: 0 0 0 6px rgba(255, 210, 40, 0.12);
+  border-color: #ffd200;
+  transform: translateY(-1px);
+}
+
+/* arquivos */
+.file-input {
+  width: 100%;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px dashed #dcdcdc;
+  background: #fafafa;
+}
+
+/* motivos dropdown list */
+#motivosList label {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+}
+#motivosList label:hover {
+  background: #f8fafc;
+}
+
+/* estilo do placeholder truncado */
+#motivosPlaceholder {
+  max-width: 85%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* imprimir: esconder tudo exceto painel de relatório */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #reportPanel,
+  #reportPanel * {
+    visibility: visible;
+  }
+  #reportPanel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}

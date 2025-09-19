@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Relatório PRF — Veículo</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="bg-[#0A2463] text-gray-800 font-inter antialiased">
+    <div class="max-w-7xl mx-auto p-6">
+      <!-- HEADER -->
+      <header
+        class="bg-white rounded-lg shadow p-4 flex items-center gap-4 mb-6 border-l-4 border-[#FFD200]"
+      >
+        <img
+          src="assets/logoprf.jpeg"
+          alt="PRF"
+          class="h-40 w-40 object-contain"
+          aumentado
+          --
+        />
+
+        <div>
+          <h1 class="text-2xl font-extrabold text-[#071f4b]">
+            Relatório PRF — Apreensão Veícular
+          </h1>
+          <p class="text-sm text-gray-500">
+            Formulário oficial para preenchimento de apreensão veicular
+          </p>
+        </div>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- FORM -->
+        <section
+          class="bg-white rounded-lg p-6 border-2 border-[#FFD200] shadow"
+        >
+          <h2 class="text-lg font-semibold mb-4 flex items-center gap-3">
+            <span class="text-2xl">📋</span> Dados do Relatório
+          </h2>
+
+          <form id="reportForm" class="space-y-4" autocomplete="off">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- QRA -->
+              <div class="col-span-1 md:col-span-3">
+                <label
+                  for="qra"
+                  class="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  QRA(s)
+                </label>
+                <div id="qraContainer" class="space-y-2">
+                  <div class="flex items-center gap-2"></div>
+                </div>
+
+                <button
+                  type="button"
+                  id="addQra"
+                  class="mt-2 px-3 py-1 bg-[#071f4b] text-white text-sm rounded-lg shadow hover:opacity-90"
+                >
+                  ➕ Adicionar outro QRA
+                </button>
+              </div>
+
+              <div class="col-span-1 md:col-span-3">
+                <label
+                  for="dadosBrutos"
+                  class="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Colar Dados Brutos
+                </label>
+                <input
+                  id="dadosBrutos"
+                  placeholder="Cole aqui os dados completos"
+                  class="input-modern w-full"
+                />
+              </div>
+
+              <input
+                id="nomeProprietario"
+                placeholder="Nome do Proprietário"
+                class="input-modern col-span-2 md:col-span-1"
+              />
+              <input
+                id="rgProprietario"
+                placeholder="RG do Proprietário"
+                class="input-modern col-span-1"
+              />
+              <input
+                id="placaVeiculo"
+                placeholder="Placa do Veículo"
+                class="input-modern col-span-1"
+              />
+              <input
+                id="nomeModelo"
+                placeholder="Nome do Modelo"
+                class="input-modern col-span-1"
+              />
+              <input
+                id="multaAplicada"
+                placeholder="Multa Aplicada"
+                class="input-modern col-span-1"
+              />
+            </div>
+
+            <!-- Motivos: custom multiselect (nova versão, robusta) -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Motivos</label
+              >
+              <div class="relative">
+                <button
+                  type="button"
+                  id="motivosToggle"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  class="w-full text-left bg-white border border-gray-200 rounded-lg px-4 py-3 flex items-center justify-between shadow-sm hover:shadow focus:ring-2 focus:ring-[#FFD200]"
+                >
+                  <div id="motivosPlaceholder" class="text-gray-500 truncate">
+                    Clique para selecionar motivos
+                  </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                <div
+                  id="motivosDropdown"
+                  class="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto hidden p-3"
+                >
+                  <!-- lista de motivos será injetada aqui -->
+                  <div
+                    id="motivosList"
+                    class="space-y-2"
+                    role="listbox"
+                    aria-multiselectable="true"
+                  ></div>
+
+                  <div class="mt-3 flex justify-between items-center">
+                    <button
+                      type="button"
+                      id="clearMotivos"
+                      class="text-sm text-gray-500 hover:text-gray-700"
+                    >
+                      Limpar
+                    </button>
+                    <span class="text-xs text-gray-400"
+                      >Selecione múltiplos motivos</span
+                    >
+                  </div>
+
+                  <!-- select escondido que mantém o valor para submissão / leitura -->
+                  <select
+                    id="motivosSelect"
+                    name="motivos[]"
+                    multiple
+                    class="hidden"
+                    aria-hidden="true"
+                  ></select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fotos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >Foto 1 (Placa do veículo)</label
+                >
+                <input
+                  id="foto1"
+                  type="file"
+                  accept="image/*"
+                  class="file-input"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1"
+                  >Foto 2 (Foto do porta malas)</label
+                >
+                <input
+                  id="foto2"
+                  type="file"
+                  accept="image/*"
+                  class="file-input"
+                />
+              </div>
+            </div>
+
+            <!-- Exemplo -->
+            <!-- Exemplo -->
+            <div class="mt-4">
+              <p class="text-xs text-gray-500 mb-1">📌 Exemplo de foto:</p>
+              <img
+                id="exampleImg"
+                src="assets/image.png"
+                alt="Exemplo"
+                class="w-48 rounded border shadow-sm cursor-pointer hover:opacity-80"
+              />
+            </div>
+
+            <!-- MODAL -->
+            <div
+              id="imageModal"
+              class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden"
+            >
+              <div class="relative">
+                <button
+                  id="closeModal"
+                  class="absolute top-2 right-2 bg-white text-black rounded-full px-3 py-1 font-bold shadow hover:bg-gray-200"
+                >
+                  ✕
+                </button>
+                <img
+                  id="modalImg"
+                  src=""
+                  alt="Exemplo Grande"
+                  class="max-h-[90vh] max-w-[90vw] rounded-lg shadow-lg"
+                />
+              </div>
+            </div>
+
+            <div class="flex gap-3 items-center pt-3">
+              <button
+                id="btnGenerate"
+                type="button"
+                class="grow bg-[#071f4b] text-white font-semibold py-3 rounded-lg shadow hover:opacity-95"
+              >
+                Gerar Relatório
+              </button>
+              <button
+                id="btnPrint"
+                type="button"
+                class="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg shadow"
+              >
+                Imprimir
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <!-- PREVIEW / RELATÓRIO -->
+        <section
+          id="reportPanel"
+          class="bg-white rounded-lg p-6 border-2 border-[#FFD200] shadow"
+        >
+          <div class="flex items-center gap-3 mb-4">
+            <img
+              src="assets/logoprf.jpeg"
+              alt="PRF"
+              class="h-20 w-40 object-contain"
+              aumentado
+              --
+            />
+            <h3 class="text-xl font-bold text-[#071f4b]">
+              RELATÓRIO DE APREENSÃO VEICULAR
+            </h3>
+          </div>
+
+          <div class="space-y-2 text-sm text-gray-800">
+            <p><strong>QRA:</strong> <span id="outQra">-</span></p>
+            <p>
+              <strong>Nome do Proprietário:</strong>
+              <span id="outNomeProprietario">-</span>
+            </p>
+            <p>
+              <strong>RG do Proprietário:</strong>
+              <span id="outRgProprietario">-</span>
+            </p>
+            <p>
+              <strong>Placa do Veículo:</strong>
+              <span id="outPlacaVeiculo">-</span>
+            </p>
+            <p>
+              <strong>Nome do Modelo:</strong> <span id="outNomeModelo">-</span>
+            </p>
+            <p>
+              <strong>Multa Aplicada:</strong>
+              <span id="outMultaAplicada">-</span>
+            </p>
+            <p><strong>Motivos:</strong> <span id="outMotivos">-</span></p>
+          </div>
+
+          <div class="mt-6">
+            <h4 class="font-semibold mb-2 flex items-center gap-2">
+              📷 Fotos do Veículo
+            </h4>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="border rounded-lg p-2 text-center">
+                <img
+                  id="outFoto1"
+                  class="w-full rounded-lg border shadow hidden"
+                  alt="Foto do veículo 1"
+                />
+                <p class="mt-1 text-xs text-gray-500">Foto 1 (Placa)</p>
+              </div>
+              <div class="border rounded-lg p-2 text-center">
+                <img
+                  id="outFoto2"
+                  class="w-full rounded-lg border shadow hidden"
+                  alt="Foto do veículo 2"
+                />
+                <p class="mt-1 text-xs text-gray-500">Foto 2 (Porta malas)</p>
+              </div>
+            </div>
+          </div>
+
+          <p class="mt-3 text-xs text-[#8b6b00]">
+            ⚠️ É obrigatório incluir fotos mostrando as informações e a placa do
+            veículo.
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
