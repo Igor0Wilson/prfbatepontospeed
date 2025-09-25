@@ -70,3 +70,33 @@ body {
     justify-content: flex-start;
   }
 }
+
+/* Estiliza o relatório */
+#reportPonto {
+  font-size: 1.1rem; /* aumenta a fonte geral */
+  line-height: 1.6; /* deixa os campos mais espaçados */
+  padding: 2rem; /* aumenta o espaçamento interno */
+}
+
+#reportPonto h3 {
+  font-size: 1.5rem; /* título maior */
+}
+
+#reportPonto .text-sm {
+  font-size: 1.2rem; /* aumenta os campos do relatório */
+}
+
+#reportPonto .text-sm p {
+  margin-bottom: 0.8rem; /* espaço entre linhas */
+}
+
+#reportPonto .text-sm strong {
+  min-width: 100px;
+  display: inline-block; /* alinha os títulos */
+}
+
+/* Botão inferior da PRF */
+#reportPonto > div:last-child {
+  font-size: 1.2rem;
+  padding: 0.75rem 0;
+}

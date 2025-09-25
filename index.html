@@ -3,433 +3,244 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Relatório PRF — Prisão</title>
+    <title>Relatório PRF — Bate Ponto</title>
 
-    <!-- Tailwind CDN -->
+    <!-- Libs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body class="bg-[#0A2463] text-gray-800 font-inter antialiased">
     <div class="max-w-7xl mx-auto p-6">
-      <!-- HEADER -->
-      <header
-        class="bg-white rounded-lg shadow p-4 flex items-center gap-4 mb-4 border-l-4 border-[#FFD200]"
-      >
-        <img
-          src="assets/logoprf.jpeg"
-          alt="PRF"
-          class="h-32 w-32 object-contain"
-        />
-        <div>
-          <h1 class="text-2xl font-extrabold text-[#071f4b]">
-            Relatório PRF — Prisão
-          </h1>
-          <p class="text-sm text-gray-500">
-            Formulário oficial para preenchimento de prisão em flagrante
-          </p>
-        </div>
-      </header>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- FORM PRISÃO -->
-        <section
-          class="bg-white rounded-lg p-6 border-2 border-[#FFD200] shadow"
+      <div id="printArea">
+        <!-- HEADER -->
+        <header
+          class="bg-white rounded-lg shadow p-4 flex items-center justify-between mb-4 border-l-4 border-[#FFD200]"
         >
-          <h2 class="text-lg font-semibold mb-4 flex items-center gap-3">
-            <span class="text-2xl">📋</span> Dados da Prisão
-          </h2>
-
-          <form id="prisonForm" class="space-y-4" autocomplete="off">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <!-- QRA -->
-              <div class="col-span-1 md:col-span-3">
-                <label
-                  for="qra"
-                  class="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  QRA(s) e Patente(s)
-                </label>
-                <div id="qraContainer" class="space-y-2">
-                  <div class="flex gap-2"></div>
-                </div>
-                <button
-                  type="button"
-                  id="addQra"
-                  class="mt-2 px-3 py-1 bg-[#071f4b] text-white text-sm rounded-lg shadow hover:opacity-90"
-                >
-                  ➕ Adicionar outro QRA
-                </button>
-              </div>
-
-              <input
-                id="nomePreso"
-                placeholder="Nome do Preso"
-                class="input-modern col-span-2 md:col-span-1"
-              />
-              <input
-                id="rgPreso"
-                placeholder="RG do Preso"
-                class="input-modern col-span-1"
-              />
-              <input
-                id="idadePreso"
-                placeholder="Idade"
-                class="input-modern col-span-1"
-              />
-              <input
-                id="localPrisao"
-                placeholder="Local da Prisão"
-                class="input-modern col-span-2 md:col-span-1"
-              />
-              <input
-                id="dataPrisao"
-                type="date"
-                class="input-modern col-span-1"
-              />
-              <input
-                id="horaPrisao"
-                type="time"
-                class="input-modern col-span-1"
-              />
-            </div>
-
-            <!-- Pena / Multa / Dinheiro Sujo -->
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <input
-                id="penaMeses"
-                type="number"
-                placeholder="Pena Total (meses)"
-                class="input-modern"
-              />
-              <input
-                id="penaPercentual"
-                type="number"
-                placeholder="Pena (%)"
-                class="input-modern"
-              />
-              <input
-                id="multaValor"
-                type="number"
-                placeholder="Multa (R$)"
-                class="input-modern"
-              />
-              <input
-                id="multaPercentual"
-                type="number"
-                placeholder="Multa (%)"
-                class="input-modern"
-              />
-              <input
-                id="dinheiroSujo"
-                type="number"
-                placeholder="Dinheiro Sujo (R$)"
-                class="input-modern"
-              />
-            </div>
-
-            <!-- Motivos -->
+          <div class="flex items-center gap-4">
+            <img
+              src="assets/logospeed.png"
+              alt="PRF Speed"
+              class="h-32 w-32 object-contain"
+            />
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Motivos da Prisão
-              </label>
-              <div class="relative">
-                <button
-                  type="button"
-                  id="motivosToggle"
-                  aria-haspopup="listbox"
-                  aria-expanded="false"
-                  class="w-full text-left bg-white border border-gray-200 rounded-lg px-4 py-3 flex items-center justify-between shadow-sm hover:shadow focus:ring-2 focus:ring-[#FFD200]"
-                >
-                  <div id="motivosPlaceholder" class="text-gray-500 truncate">
-                    Clique para selecionar motivos
-                  </div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </button>
-
-                <div
-                  id="motivosDropdown"
-                  class="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto hidden p-3"
-                >
-                  <div
-                    id="motivosList"
-                    class="space-y-2"
-                    role="listbox"
-                    aria-multiselectable="true"
-                  ></div>
-
-                  <div class="mt-3 flex justify-between items-center">
-                    <button
-                      type="button"
-                      id="clearMotivos"
-                      class="text-sm text-gray-500 hover:text-gray-700"
-                    >
-                      Limpar
-                    </button>
-                    <span class="text-xs text-gray-400"
-                      >Selecione múltiplos motivos</span
-                    >
-                  </div>
-
-                  <select
-                    id="motivosSelect"
-                    name="motivos[]"
-                    multiple
-                    class="hidden"
-                    aria-hidden="true"
-                  ></select>
-                </div>
-              </div>
+              <h1 class="text-2xl font-extrabold text-[#071f4b]">
+                Bate ponto Speed
+              </h1>
+              <p class="text-sm text-gray-500">
+                Formulário oficial para gerenciamento de ponto Speed
+              </p>
             </div>
-
-            <!-- Itens Apreendidos -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Itens Apreendidos
-              </label>
-              <textarea
-                id="itensApreendidos"
-                rows="3"
-                placeholder="Ex: armas, drogas, dinheiro"
-                class="input-modern w-full"
-              ></textarea>
-            </div>
-
-            <!-- Atenuantes -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Atenuantes
-              </label>
-              <div class="space-y-2">
-                <label class="flex items-center">
-                  <input
-                    type="checkbox"
-                    value="Réu primário: Redução de 10% na pena total"
-                    class="mr-2 atenuanteItem"
-                  />
-                  Réu primário
-                </label>
-                <label class="flex items-center">
-                  <input
-                    type="checkbox"
-                    value="Confissão espontânea: Redução de 5% na pena total"
-                    class="mr-2 atenuanteItem"
-                  />
-                  Réu Confesso
-                </label>
-              </div>
-            </div>
-
-            <!-- Porte de Arma -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Porte de Arma
-              </label>
-              <select id="porteArma" class="input-modern w-full">
-                <option value="Não">Não</option>
-                <option value="Sim">Sim</option>
-              </select>
-            </div>
-
-            <!-- Fotos -->
-            <!-- Uploads + exemplos -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Foto 1 -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Foto 1 (Preso)
-                </label>
-                <input
-                  id="fotoPreso1"
-                  type="file"
-                  accept="image/*"
-                  class="file-input"
-                />
-                <div class="mt-2">
-                  <img
-                    id="exampleImg1"
-                    src="assets/image2.png"
-                    alt="Exemplo Preso"
-                    class="w-40 rounded border shadow-sm cursor-pointer hover:opacity-80"
-                  />
-                </div>
-              </div>
-
-              <!-- Foto 2 -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Foto 2 (Material Apreendido)
-                </label>
-                <input
-                  id="fotoPreso2"
-                  type="file"
-                  accept="image/*"
-                  class="file-input"
-                />
-                <div class="mt-2">
-                  <img
-                    id="exampleImg2"
-                    src="assets/image1.png"
-                    alt="Exemplo Material"
-                    class="w-40 rounded border shadow-sm cursor-pointer hover:opacity-80"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <!-- Modal -->
-            <div
-              id="imageModal"
-              class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden"
-            >
-              <div class="relative">
-                <button
-                  id="closeModal"
-                  class="absolute top-2 right-2 bg-white text-black rounded-full px-3 py-1 font-bold shadow hover:bg-gray-200"
-                >
-                  ✕
-                </button>
-                <img
-                  id="modalImg"
-                  src=""
-                  alt="Exemplo Grande"
-                  class="max-h-[90vh] max-w-[90vw] rounded-lg shadow-lg"
-                />
-              </div>
-            </div>
-
-            <div class="flex gap-3 items-center pt-3">
-              <button
-                id="btnGeneratePrisao"
-                type="button"
-                class="grow bg-[#071f4b] text-white font-semibold py-3 rounded-lg shadow hover:opacity-95"
-              >
-                Gerar Relatório
-              </button>
-              <button
-                id="btnPrintPrisao"
-                type="button"
-                class="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg shadow"
-              >
-                Imprimir
-              </button>
-            </div>
-          </form>
-        </section>
-
-        <!-- PREVIEW PRISÃO -->
-        <!-- PREVIEW PRISÃO -->
-        <section
-          id="reportPrisao"
-          class="bg-white rounded-lg p-6 border-2 border-[#FFD200] shadow"
-        >
-          <div class="flex items-center gap-3 mb-4">
+          </div>
+          <div class="flex flex-col items-center justify-center w-40">
             <img
               src="assets/logoprf.jpeg"
               alt="PRF"
-              class="h-20 w-40 object-contain"
+              class="h-24 w-24 object-contain mb-2"
             />
-            <h3 class="text-xl font-bold text-[#071f4b]">
-              RELATÓRIO DE PRISÃO
-            </h3>
+            <p
+              id="dataHora"
+              class="text-sm font-medium text-gray-600 text-center"
+            ></p>
           </div>
+        </header>
 
-          <!-- Aqui estava duplicado -->
-          <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-800">
-            <p><strong>QRA:</strong> <span id="outQra">-</span></p>
-            <p>
-              <strong>Nome do Preso:</strong> <span id="outNomePreso">-</span>
-            </p>
-            <p><strong>RG do Preso:</strong> <span id="outRgPreso">-</span></p>
-            <p><strong>Idade:</strong> <span id="outIdadePreso">-</span></p>
-            <p>
-              <strong>Local da Prisão:</strong>
-              <span id="outLocalPrisao">-</span>
-            </p>
-            <p><strong>Data:</strong> <span id="outDataPrisao">-</span></p>
-            <p><strong>Hora:</strong> <span id="outHoraPrisao">-</span></p>
-            <p><strong>Pena:</strong> <span id="outPena">-</span></p>
-            <p><strong>Multa:</strong> <span id="outMulta">-</span></p>
-            <p>
-              <strong>Dinheiro Sujo:</strong>
-              <span id="outDinheiroSujo">-</span>
-            </p>
-            <p class="col-span-2">
-              <strong>Motivos:</strong> <span id="outMotivosPrisao">-</span>
-            </p>
-            <p class="col-span-2">
-              <strong>Itens Apreendidos:</strong> <span id="outItens">-</span>
-            </p>
-            <p class="col-span-2">
-              <strong>Atenuantes:</strong> <span id="outAtenuantes">-</span>
-            </p>
-            <p class="col-span-2">
-              <strong>Porte de Arma:</strong> <span id="outPorteArma">-</span>
-            </p>
-          </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- FORMULÁRIO -->
+          <section
+            id="pontoSection"
+            class="bg-white rounded-lg p-6 border-2 border-[#FFD200] shadow mt-6"
+          >
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-3">
+              <span class="text-2xl">⏱️</span> Relatório de Bate Ponto
+            </h2>
 
-          <div class="mt-6">
-            <h4 class="font-semibold mb-2 flex items-center gap-2">📷 Fotos</h4>
-            <div class="grid grid-cols-2 gap-4">
-              <div class="border rounded-lg p-2 text-center">
-                <img
-                  id="outFotoPreso1"
-                  class="w-full rounded-lg border shadow hidden"
-                  alt="Foto preso"
-                />
-                <p class="mt-1 text-xs text-gray-500">Foto 1 (Preso)</p>
+            <form id="pontoForm" class="space-y-4">
+              <!-- QRA e Patente -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label
+                    for="qraPonto"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                    >Nome / QRA</label
+                  >
+                  <input
+                    id="qraPonto"
+                    placeholder=""
+                    class="input-modern w-full"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    for="patentePonto"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                    >Patente</label
+                  >
+                  <select id="patentePonto" class="input-modern w-full">
+                    <option value="" disabled selected>
+                      Selecione a patente
+                    </option>
+                    <option value="Speed Elite">Comandante</option>
+                    <option value="Speed Elite">Sub comandante</option>
+                    <option value="Speed Elite">Instrutor</option>
+                    <option value="Speed Elite">Speed Elite</option>
+                    <option value="Agente Speed">Agente Speed</option>
+                  </select>
+                </div>
               </div>
-              <div class="border rounded-lg p-2 text-center">
-                <img
-                  id="outFotoPreso2"
-                  class="w-full rounded-lg border shadow hidden"
-                  alt="Foto material"
-                />
-                <p class="mt-1 text-xs text-gray-500">Foto 2 (Material)</p>
+
+              <!-- Seleção de Veículo -->
+              <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Selecione o veículo</label
+                >
+                <div class="flex gap-4">
+                  <button
+                    type="button"
+                    class="veiculo-btn border-2 border-gray-300 rounded-lg overflow-hidden hover:border-[#FFD200] transition duration-200"
+                    onclick="selecionarVeiculo(this, 'Alstom Martin')"
+                  >
+                    <img
+                      src="assets/Alstom Martin.png"
+                      alt="Alstom Martin"
+                      class="w-full h-full object-cover"
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    class="veiculo-btn border-2 border-gray-300 rounded-lg overflow-hidden hover:border-[#FFD200] transition duration-200"
+                    onclick="selecionarVeiculo(this, 'camaro')"
+                  >
+                    <img
+                      src="assets/camaro.png"
+                      alt="camaro"
+                      class="w-full h-full object-cover"
+                    />
+                  </button>
+                </div>
+              </div>
+
+              <!-- INÍCIO / FIM -->
+              <div class="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1"
+                    >Início</label
+                  >
+                  <input
+                    id="inicio"
+                    placeholder="Início"
+                    class="input-modern"
+                    readonly
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1"
+                    >Fim</label
+                  >
+                  <input
+                    id="fim"
+                    placeholder="Fim"
+                    class="input-modern"
+                    readonly
+                  />
+                </div>
+              </div>
+
+              <!-- BOTÕES -->
+              <div class="flex gap-3 items-center pt-3">
+                <button
+                  id="btnIniciar"
+                  type="button"
+                  class="grow bg-[#071f4b] text-white font-semibold py-3 rounded-lg shadow hover:opacity-95 flex items-center justify-center gap-2"
+                >
+                  ⏰ Iniciar Expediente
+                </button>
+                <button
+                  id="btnFinalizar"
+                  type="button"
+                  class="bg-red-500 text-white px-4 py-3 rounded-lg shadow hover:opacity-90 flex items-center justify-center gap-2"
+                >
+                  🔴 Finalizar Expediente
+                </button>
+                <button
+                  id="btnFoto"
+                  type="button"
+                  class="bg-green-600 text-white px-4 py-3 rounded-lg shadow hover:opacity-90 flex items-center justify-center gap-2"
+                >
+                  📸 Tirar Foto
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <!-- RELATÓRIO -->
+          <section
+            id="reportPonto"
+            class="bg-white rounded-lg p-6 border-2 border-[#FFD200] shadow mt-6 flex flex-col justify-between"
+          >
+            <div>
+              <div class="flex items-center gap-4 mb-4">
+                <div class="flex items-center gap-2">
+                  <img
+                    src="assets/logospeed.png"
+                    alt="Logo Speed"
+                    class="h-20 w-20 object-contain"
+                  />
+                  <img
+                    src="assets/Prf_brasao_novo.jpg"
+                    alt="Logo PRF"
+                    class="h-13 w-12 object-contain"
+                  />
+                </div>
+                <h3 class="text-xl font-extrabold text-[#071f4b]">PRF Speed</h3>
+              </div>
+              <div class="text-sm text-gray-800 space-y-2">
+                <p>
+                  <strong>QRA/Nome:</strong> <span id="outQraPonto">-</span>
+                </p>
+                <p>
+                  <strong>Patente:</strong> <span id="outPatentePonto">-</span>
+                </p>
+                <p>
+                  <strong>Veículo:</strong> <span id="outVeiculoPonto">-</span>
+                </p>
+                <p><strong>Início:</strong> <span id="outInicio">-</span></p>
+                <p><strong>Fim:</strong> <span id="outFim">-</span></p>
               </div>
             </div>
-          </div>
-
-          <p class="mt-3 text-xs text-[#8b6b00]">
-            ⚠️ É obrigatório incluir fotos do preso e do material apreendido.
-          </p>
-        </section>
+            <div
+              class="mt-6 bg-[#071f4b] text-[#FFD200] text-center py-2 rounded-b-lg font-bold"
+            >
+              Polícia Rodoviária Federal
+            </div>
+          </section>
+        </div>
       </div>
     </div>
 
+    <!-- MODAL -->
+    <div
+      id="modalAviso"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden"
+    >
+      <div
+        class="bg-white rounded-lg p-6 max-w-sm w-full border-l-4 border-[#FFD200] shadow-lg"
+      >
+        <h2 class="text-xl font-bold text-[#071f4b] mb-2">Atenção!</h2>
+        <p class="text-gray-700 mb-4">
+          Por favor, preencha todos os campos obrigatórios antes de iniciar o
+          expediente.
+        </p>
+        <button
+          onclick="fecharModal()"
+          class="bg-[#071f4b] text-[#FFD200] font-bold py-2 px-4 rounded-lg hover:opacity-90"
+        >
+          Fechar
+        </button>
+      </div>
+    </div>
     <script src="script.js"></script>
   </body>
-
-  <div
-    id="imageModal"
-    class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden"
-  >
-    <div class="relative">
-      <button
-        id="closeModal"
-        class="absolute top-2 right-2 bg-white text-black rounded-full px-3 py-1 font-bold shadow hover:bg-gray-200"
-      >
-        ✕
-      </button>
-      <img
-        id="modalImg"
-        src=""
-        alt="Exemplo Grande"
-        class="max-h-[90vh] max-w-[90vw] rounded-lg shadow-lg"
-      />
-    </div>
-  </div>
 </html>
