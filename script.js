@@ -68,7 +68,7 @@ function selecionarVeiculo(botao, nome) {
 }
 
 // Iniciar expediente
-btnIniciar.addEventListener("click", () => {
+btnIniciar.addEventListener("click", async () => {
   if (!qraInput.value || !patenteSelect.value || !veiculoSelecionado) {
     document.getElementById("modalAviso").classList.remove("hidden");
     return;
@@ -76,33 +76,6 @@ btnIniciar.addEventListener("click", () => {
   const hora = getHoraAtual();
   inicioInput.value = hora;
   outInicio.textContent = hora;
-});
-
-// Finalizar expediente
-btnFinalizar.addEventListener("click", () => {
-  const hora = getHoraAtual();
-  fimInput.value = hora;
-  outFim.textContent = hora;
-});
-
-// Fechar modal
-function fecharModal() {
-  document.getElementById("modalAviso").classList.add("hidden");
-}
-
-// Botão de tirar print apenas do relatório
-btnFoto.addEventListener("click", async () => {
-  const element = document.getElementById("reportPonto");
-
-  // 1️⃣ Gerar a imagem com html2canvas
-  const canvas = await html2canvas(element, { scale: 2 });
-  const imgData = canvas.toDataURL("image/png");
-
-  // 2️⃣ Baixar a imagem localmente
-  const link = document.createElement("a");
-  link.href = imgData;
-  link.download = "relatorio_ponto.png";
-  link.click();
 
   // 3️⃣ Preparar dados do formulário para enviar ao Firebase
   const ponto = {
@@ -131,6 +104,33 @@ btnFoto.addEventListener("click", async () => {
   } catch (err) {
     console.error("Erro ao salvar ponto:", err);
   }
+});
+
+// Finalizar expediente
+btnFinalizar.addEventListener("click", () => {
+  const hora = getHoraAtual();
+  fimInput.value = hora;
+  outFim.textContent = hora;
+});
+
+// Fechar modal
+function fecharModal() {
+  document.getElementById("modalAviso").classList.add("hidden");
+}
+
+// Botão de tirar print apenas do relatório
+btnFoto.addEventListener("click", async () => {
+  const element = document.getElementById("reportPonto");
+
+  // 1️⃣ Gerar a imagem com html2canvas
+  const canvas = await html2canvas(element, { scale: 2 });
+  const imgData = canvas.toDataURL("image/png");
+
+  // 2️⃣ Baixar a imagem localmente
+  const link = document.createElement("a");
+  link.href = imgData;
+  link.download = "relatorio_ponto.png";
+  link.click();
 });
 
 // Variável global para armazenar pontos ativos
