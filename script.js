@@ -106,6 +106,7 @@ btnFoto.addEventListener("click", async () => {
 
   // 3️⃣ Preparar dados do formulário para enviar ao Firebase
   const ponto = {
+    divisao: "Speed",
     qra: document.getElementById("qraPonto").value,
     patente: document.getElementById("patentePonto").value,
     veiculo: document.getElementById("outVeiculoPonto").textContent || "",
@@ -127,13 +128,123 @@ btnFoto.addEventListener("click", async () => {
 
     const data = await response.json();
     console.log("Ponto salvo:", data);
-    alert("Ponto enviado com sucesso!");
   } catch (err) {
     console.error("Erro ao salvar ponto:", err);
-    alert("Erro ao enviar ponto!");
   }
 });
 
+// Variável global para armazenar pontos ativos
+let pontosAtivos = [];
+
+// Função para buscar pontos abertos da API e preencher select
+async function carregarPontosAbertos() {
+  try {
+    const response = await fetch("https://apipontospeeds.vercel.app/api/ponto");
+    const data = await response.json();
+
+    // Filtra apenas os pontos abertos (fim = "-")
+    pontosAbertos = data.pontos.filter((p) => p.fim === "-");
+
+    const select = document.getElementById("selectPonto");
+    select.innerHTML = `<option value="">Selecione um ponto</option>`; // limpa opções anteriores
+
+    pontosAbertos.forEach((p) => {
+      const option = document.createElement("option");
+      option.value = p.id;
+      option.textContent = p.qra; // mostra o nome do agente
+      select.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Erro ao carregar pontos abertos:", err);
+  }
+}
+
+// Preencher o select com os pontos ativos
+function preencherSelectPontos(pontos) {
+  const select = document.getElementById("selectPonto");
+  select.innerHTML = '<option value="">Escolha seu ponto</option>'; // limpa opções
+
+  pontos.forEach((p) => {
+    const option = document.createElement("option");
+    option.value = p.id; // id do documento
+    option.textContent = `${p.qra} - ${p.patente} - ${p.veiculo} - ${p.inicio}`;
+    select.appendChild(option);
+  });
+}
+
+document.getElementById("selectPonto").addEventListener("change", (e) => {
+  const pontoId = e.target.value;
+  if (!pontoId) return;
+
+  const pontoSelecionado = pontosAbertos.find((p) => p.id === pontoId);
+  if (!pontoSelecionado) return;
+
+  // Preenche campos do formulário
+  const qraInput = document.getElementById("qraPonto");
+  const patenteInput = document.getElementById("patentePonto");
+  const inicioInput = document.getElementById("inicio");
+  const fimInput = document.getElementById("fim");
+
+  qraInput.value = pontoSelecionado.qra;
+  patenteInput.value = pontoSelecionado.patente;
+  inicioInput.value = pontoSelecionado.inicio;
+  fimInput.value = ""; // limpar
+
+  // Bloquear edição
+  qraInput.readOnly = true;
+  patenteInput.disabled = true;
+  inicioInput.readOnly = true;
+
+  // Atualiza relatório
+  document.getElementById("outQraPonto").textContent = pontoSelecionado.qra;
+  document.getElementById("outPatentePonto").textContent =
+    pontoSelecionado.patente;
+  document.getElementById("outVeiculoPonto").textContent =
+    pontoSelecionado.veiculo;
+  document.getElementById("outInicio").textContent = pontoSelecionado.inicio;
+  document.getElementById("outFim").textContent = "-";
+});
+
+document.getElementById("btnFinalizar").addEventListener("click", async () => {
+  const pontoId = document.getElementById("selectPonto").value;
+
+  if (!pontoId) {
+    alert("Selecione um ponto para finalizar!");
+
+    // Limpa campos de ponto final
+    document.getElementById("fim").value = "";
+    document.getElementById("outFim").textContent = "-";
+
+    return;
+  }
+
+  const fimHora = new Date().toLocaleTimeString("pt-BR", { hour12: false });
+
+  try {
+    const response = await fetch(
+      `https://apipontospeeds.vercel.app/api/ponto/${pontoId}`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fim: fimHora }),
+      }
+    );
+
+    const data = await response.json();
+    console.log("Ponto finalizado:", data);
+
+    // Atualiza relatório
+    document.getElementById("outFim").textContent = fimHora;
+    document.getElementById("fim").value = fimHora;
+
+    carregarPontosAbertos();
+  } catch (err) {
+    console.error("Erro ao finalizar ponto:", err);
+  }
+});
+
+// Chama a função assim que a página carregar
+carregarPontosAbertos();
 // ==========================
 // EXPOSIÇÃO GLOBAL (para onclick no HTML)
 // ==========================
