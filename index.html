@@ -71,34 +71,32 @@
                 <div>
                   <!-- Seleção de pontos ativos -->
 
-                  <label
-                    for="qraPonto"
-                    class="block text-sm font-medium text-gray-700 mb-1"
-                    >Nome / QRA</label
-                  >
-                  <input
-                    id="qraPonto"
-                    placeholder=""
-                    class="input-modern w-full"
-                  />
+                  <div>
+                    <label
+                      for="qraPonto"
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Nome / QRA
+                    </label>
+                    <select id="qraPonto" class="input-modern w-full">
+                      <option value="">Carregando agentes...</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div>
                   <label
                     for="patentePonto"
                     class="block text-sm font-medium text-gray-700 mb-1"
-                    >Patente</label
                   >
-                  <select id="patentePonto" class="input-modern w-full">
-                    <option value="" disabled selected>
-                      Selecione a patente
-                    </option>
-                    <option value="Speed Elite">Comandante</option>
-                    <option value="Speed Elite">Sub comandante</option>
-                    <option value="Speed Elite">Instrutor</option>
-                    <option value="Speed Elite">Speed Elite</option>
-                    <option value="Agente Speed">Agente Speed</option>
-                  </select>
+                    Patente
+                  </label>
+                  <input
+                    type="text"
+                    id="patentePonto"
+                    class="input-modern w-full"
+                    readonly
+                  />
                 </div>
               </div>
 

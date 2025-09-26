@@ -243,6 +243,54 @@ document.getElementById("btnFinalizar").addEventListener("click", async () => {
   }
 });
 
+const selectQra = document.getElementById("qraPonto");
+const inputPatente = document.getElementById("patentePonto");
+
+let usuarios = [];
+
+// Função para carregar os agentes
+async function carregarAgentes() {
+  try {
+    const res = await fetch("https://apipontospeeds.vercel.app/api/usuario");
+    const data = await res.json();
+
+    usuarios = data.usuarios; // salva os dados para uso posterior
+
+    selectQra.innerHTML = '<option value="">Selecione um agente</option>';
+
+    data.usuarios.forEach((usuario) => {
+      const option = document.createElement("option");
+      option.value = usuario.qra;
+      option.textContent = usuario.qra; // Só o QRA/nome, sem patente
+      selectQra.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Erro ao carregar agentes:", err);
+    selectQra.innerHTML =
+      '<option value="">Não foi possível carregar agentes</option>';
+  }
+}
+
+// Ao selecionar um agente, atualiza a patente
+selectQra.addEventListener("change", () => {
+  const qraSelecionado = selectQra.value;
+  const usuario = usuarios.find((u) => u.qra === qraSelecionado);
+  if (usuario) {
+    inputPatente.value = usuario.patente;
+
+    // Atualiza o relatório
+    document.getElementById("outQraPonto").textContent = usuario.qra;
+    document.getElementById("outPatentePonto").textContent = usuario.patente;
+  } else {
+    inputPatente.value = "";
+    document.getElementById("outQraPonto").textContent = "-";
+    document.getElementById("outPatentePonto").textContent = "-";
+  }
+});
+
+// Chama ao carregar a página
+window.addEventListener("DOMContentLoaded", carregarAgentes);
+
 // Chama a função assim que a página carregar
 carregarPontosAbertos();
 // ==========================
